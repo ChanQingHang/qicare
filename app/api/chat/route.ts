@@ -103,7 +103,10 @@ export async function POST(request: NextRequest) {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const systemCtx = buildSystemContext(lang)
-    const history = messages.slice(0, -1).map((m) => ({
+    // Slice from index 1 to skip the initial bot welcome message (index 0).
+    // Including it would create two consecutive 'model' roles in the history,
+    // which Gemini rejects and causes garbled / missing responses.
+    const history = messages.slice(1, -1).map((m) => ({
       role: m.role === 'user' ? ('user' as const) : ('model' as const),
       parts: [{ text: m.content }],
     }))

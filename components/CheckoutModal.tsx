@@ -22,6 +22,7 @@ export default function CheckoutModal({ onClose }: Props) {
   const [orderNumber, setOrderNumber] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [submitError, setSubmitError] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
   const setField = (k: keyof typeof form, v: string) => {
     setForm((f) => ({ ...f, [k]: v }))
@@ -320,6 +321,7 @@ export default function CheckoutModal({ onClose }: Props) {
                       onClick={() => {
                         setPaymentMethod(method)
                         setErrors((e) => ({ ...e, payment: false }))
+                        setImgError(false)
                       }}
                       className={`border rounded-2xl p-4 text-left transition-all ${
                         paymentMethod === method
@@ -350,27 +352,59 @@ export default function CheckoutModal({ onClose }: Props) {
                   ))}
                 </div>
 
-                {/* QR display */}
+                {/* QR display — shown immediately when payment method is selected */}
                 {paymentMethod && (
-                  <div className="bg-white border border-cream-2 rounded-2xl p-5 animate-fadein">
-                    <div className="flex flex-col items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={paymentMethod === 'tng' ? '/tng-qr.jpeg' : '/bank-qr.jpeg'}
-                        alt={paymentMethod === 'tng' ? 'TNG QR' : 'Bank QR'}
-                        className="w-[200px] h-[200px] object-contain rounded-xl"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none'
-                        }}
-                      />
-                      {paymentMethod === 'bank' && (
-                        <div className="text-[13px] font-medium text-ink-2 text-center">
-                          {t.checkout.bankAccount}
+                  <div className="bg-white border border-cream-2 rounded-2xl p-6 animate-fadein">
+                    <div className="flex flex-col items-center gap-4">
+
+                      {/* QR image or fallback placeholder */}
+                      {!imgError ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={paymentMethod === 'tng' ? '/tng-qr.jpeg' : '/bank-qr.jpeg'}
+                          alt={paymentMethod === 'tng' ? 'TNG eWallet QR' : 'Maybank QR'}
+                          className="w-[260px] rounded-2xl border border-cream-2"
+                          onError={() => setImgError(true)}
+                        />
+                      ) : (
+                        <div className="w-[260px] h-[220px] bg-cream rounded-2xl border-2 border-dashed border-cream-2 flex flex-col items-center justify-center gap-3">
+                          <svg width="36" height="36" fill="none" stroke="#7A8C83" strokeWidth="1.4" viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7" rx="1" />
+                            <rect x="14" y="3" width="7" height="7" rx="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" />
+                            <path d="M14 14h3v3M17 17h4M17 21v-1M21 17v4" strokeLinecap="round" />
+                          </svg>
+                          <div className="text-center px-5">
+                            <p className="text-[13px] font-medium text-ink-2 mb-1">
+                              {lang === 'zh' ? 'QR 图片未找到' : 'QR image not found'}
+                            </p>
+                            <p className="text-[11px] text-mut leading-relaxed">
+                              {lang === 'zh'
+                                ? `请将收款码截图保存至项目\npublic/${paymentMethod === 'tng' ? 'tng' : 'bank'}-qr.jpeg`
+                                : `Save your QR screenshot to\npublic/${paymentMethod === 'tng' ? 'tng' : 'bank'}-qr.jpeg`}
+                            </p>
+                          </div>
                         </div>
                       )}
-                      <p className="text-[12.5px] text-mut text-center leading-relaxed max-w-[260px]">
-                        {paymentMethod === 'tng' ? t.checkout.tngHint : t.checkout.bankHint}
-                      </p>
+
+                      {/* Bank account name for bank transfer */}
+                      {paymentMethod === 'bank' && (
+                        <div className="bg-cream border border-cream-2 rounded-xl px-4 py-2.5 text-center w-full">
+                          <p className="text-[11px] text-mut mb-0.5">
+                            {lang === 'zh' ? '收款账户' : 'Account Name'}
+                          </p>
+                          <p className="text-[14px] font-semibold text-ink tracking-wide">
+                            CHAN QING HANG
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Instruction */}
+                      <div className="bg-gold/10 border border-gold/25 rounded-xl px-4 py-3 w-full">
+                        <p className="text-[12.5px] text-ink-2 text-center leading-relaxed font-medium">
+                          {paymentMethod === 'tng' ? t.checkout.tngHint : t.checkout.bankHint}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )}
