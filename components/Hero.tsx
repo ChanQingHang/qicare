@@ -98,16 +98,15 @@ export default function Hero() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Main visual card */}
+            {/* Main dark card */}
             <div className="absolute inset-0 rounded-[32px] overflow-hidden">
               <div
                 className="w-full h-full"
                 style={{
-                  background:
-                    'linear-gradient(145deg, #1F3A2E 0%, #16302A 40%, #0d2219 100%)',
+                  background: 'linear-gradient(145deg, #1F3A2E 0%, #16302A 40%, #0d2219 100%)',
                 }}
               >
-                {/* Decorative herb lines */}
+                {/* Decorative geometric lines */}
                 <svg
                   className="absolute inset-0 w-full h-full opacity-10"
                   viewBox="0 0 400 520"
@@ -118,20 +117,43 @@ export default function Hero() {
                   <circle cx="200" cy="260" r="80" stroke="#A7BF9E" strokeWidth="0.5" strokeDasharray="2 10" />
                   <line x1="200" y1="100" x2="200" y2="420" stroke="#A7BF9E" strokeWidth="0.5" opacity="0.5" />
                   <line x1="40" y1="260" x2="360" y2="260" stroke="#A7BF9E" strokeWidth="0.5" opacity="0.5" />
-                  <path d="M200 140 C160 180 130 220 130 260 C130 300 160 330 200 330 C240 330 270 300 270 260 C270 220 240 180 200 140Z" stroke="#A7BF9E" strokeWidth="0.8" fill="none" />
                 </svg>
 
-                {/* Center element */}
+                {/* Center — AI Chat icon + abstract chat lines */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
+                    {/* Chat icon box */}
                     <div
-                      className="w-24 h-20 rounded-[50%_50%_40%_40%/60%_60%_40%_40%] mx-auto mb-4"
+                      className="w-[72px] h-[72px] rounded-[22px] mx-auto mb-5 flex items-center justify-center"
                       style={{
-                        background: 'linear-gradient(160deg, #E8B4A8, #D2786B)',
-                        boxShadow: 'inset 0 -10px 20px rgba(0,0,0,0.15)',
+                        background: 'linear-gradient(145deg, rgba(82,183,136,0.28), rgba(149,213,178,0.12))',
+                        border: '1px solid rgba(149,213,178,0.22)',
                       }}
-                    />
-                    <div className="text-sage-l/60 text-[13px]">舌象示例</div>
+                    >
+                      <svg width="32" height="32" fill="none" stroke="#95D5B2" strokeWidth="1.5" viewBox="0 0 24 24">
+                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                      </svg>
+                    </div>
+                    {/* Abstract message lines */}
+                    <div className="flex flex-col gap-2 items-start w-[148px] mx-auto">
+                      <div className="flex gap-1.5 self-start items-center">
+                        <div className="w-5 h-5 rounded-md bg-sage/25 flex-shrink-0" />
+                        <div className="h-[6px] w-[80px] rounded-full bg-sage/25" />
+                      </div>
+                      <div className="h-[6px] w-[52px] rounded-full bg-white/10 self-end" />
+                      <div className="flex gap-1.5 self-start items-center">
+                        <div className="w-5 h-5 rounded-md bg-sage/20 flex-shrink-0" />
+                        <div className="flex gap-1 mt-0.5">
+                          {[0, 1, 2].map((i) => (
+                            <div
+                              key={i}
+                              className="w-1.5 h-1.5 rounded-full bg-sage-l/50 animate-bounce"
+                              style={{ animationDelay: `${i * 0.15}s` }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -143,20 +165,24 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Floating AI Analysis Card */}
-            <div className="animate-floaty absolute -left-4 bottom-8 bg-paper rounded-2xl p-4 w-[210px] shadow-[0_20px_60px_rgba(22,48,42,0.2)] border border-cream-2">
+            {/* Floating AI info card */}
+            <div className="animate-floaty absolute -left-4 bottom-8 bg-paper rounded-2xl p-4 w-[220px] shadow-[0_20px_60px_rgba(22,48,42,0.2)] border border-cream-2">
               <div className="flex items-center gap-2.5 mb-3">
                 <div
-                  className="w-9 h-9 rounded-xl flex-shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #E8B4A8, #D88B7C)' }}
-                />
+                  className="w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, #2D6A4F, #1B3A2D)' }}
+                >
+                  <svg width="16" height="16" fill="none" stroke="#95D5B2" strokeWidth="1.8" viewBox="0 0 24 24">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                  </svg>
+                </div>
                 <div>
                   <div className="text-[13px] font-medium text-ink">{t.hero.scanLabel}</div>
                   <div className="text-[11px] text-mut">{t.hero.scanSub}</div>
                 </div>
               </div>
               <div className="h-1.5 rounded-full bg-cream-2 overflow-hidden mb-2">
-                <div className="h-full w-[72%] rounded-full bg-sage" />
+                <div className="h-full w-[68%] rounded-full bg-sage" />
               </div>
               <div className="text-[11.5px] text-txt/80">{t.hero.scanResult}</div>
             </div>

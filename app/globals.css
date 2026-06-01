@@ -79,10 +79,6 @@ button { font-family: var(--font-sans); }
   50% { transform: translateY(-12px); }
 }
 
-@keyframes scanline {
-  0% { top: 6%; }
-  100% { top: 94%; }
-}
 
 @keyframes fadein {
   from { opacity: 0; transform: translateY(8px); }
@@ -97,4 +93,3 @@ button { font-family: var(--font-sans); }
 .animate-floaty      { animation: floaty 5s ease-in-out infinite; }
 .animate-fadein      { animation: fadein 0.5s ease forwards; }
 .animate-spin-slow   { animation: spin 1s linear infinite; }
-.animate-scanline    { animation: scanline 1.6s linear infinite; }

@@ -30,3 +30,24 @@ export interface DoctorApplication {
   bio: string
   registration_no: string
 }
+
+export interface OrderItem {
+  id: number
+  name: string
+  nameEn: string
+  price: number
+  qty: number
+  gradient: string
+}
+
+export interface Order {
+  order_number: string
+  customer_name: string
+  customer_phone: string
+  customer_address: string
+  payment_method: 'tng' | 'bank'
+  items: OrderItem[]
+  total_amount: number
+  currency: string
+  status: string
+}

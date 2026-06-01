@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useLang } from '@/lib/i18n'
 
 function MytcmLogoFooter() {
@@ -70,37 +71,61 @@ export default function Footer() {
             ))}
           </div>
 
-          {/* About */}
+          {/* Company */}
           <div>
             <h4 className="text-[13.5px] text-cream font-medium mb-3">{t.footer.aboutTitle}</h4>
-            {[
-              { label: t.nav.recruit, id: 'recruit' },
-              { label: t.footer.about },
-              { label: t.footer.privacy },
-              { label: t.footer.terms },
-            ].map((l, i) => (
-              <button
-                key={i}
-                onClick={() => l.id && scrollTo(l.id)}
-                className="block text-[13px] text-cream/55 hover:text-sage-l transition-colors py-1.5 font-light text-left"
-              >
-                {l.label}
-              </button>
-            ))}
+            <button
+              onClick={() => scrollTo('recruit')}
+              className="block text-[13px] text-cream/55 hover:text-sage-l transition-colors py-1.5 font-light text-left"
+            >
+              {t.nav.recruit}
+            </button>
+            <Link
+              href="/about"
+              className="block text-[13px] text-cream/55 hover:text-sage-l transition-colors py-1.5 font-light"
+            >
+              {t.footer.about}
+            </Link>
+            <Link
+              href="/privacy"
+              className="block text-[13px] text-cream/55 hover:text-sage-l transition-colors py-1.5 font-light"
+            >
+              {t.footer.privacy}
+            </Link>
+            <Link
+              href="/terms"
+              className="block text-[13px] text-cream/55 hover:text-sage-l transition-colors py-1.5 font-light"
+            >
+              {t.footer.terms}
+            </Link>
           </div>
 
           {/* Contact */}
           <div>
             <h4 className="text-[13.5px] text-cream font-medium mb-3">{t.footer.contactTitle}</h4>
-            <p className="text-[13px] text-cream/55 py-1.5 font-light">{t.footer.support}</p>
-            <p className="text-[13px] text-cream/55 py-1.5 font-light">{t.footer.whatsapp}</p>
-            <p className="text-[13px] text-cream/55 py-1.5 font-light">{t.footer.address}</p>
+            <a
+              href="mailto:qinghang7@gmail.com"
+              className="block text-[13px] text-cream/55 hover:text-sage-l transition-colors py-1.5 font-light"
+            >
+              qinghang7@gmail.com
+            </a>
+            <a
+              href="https://wa.link/rhh5aw"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-[13px] text-cream/55 hover:text-sage-l transition-colors py-1.5 font-light"
+            >
+              {t.footer.whatsapp}
+            </a>
+            <p className="text-[13px] text-cream/55 py-1.5 font-light">
+              Johor Bahru, Johor, Malaysia
+            </p>
           </div>
         </div>
 
         <div className="border-t border-cream/10 pt-6 flex flex-col sm:flex-row justify-between gap-3 text-[12px] text-cream/40">
           <span>{t.footer.copyright}</span>
-          <span className="max-w-[480px] text-right">{t.footer.disclaimer}</span>
+          <span className="max-w-[480px] sm:text-right">{t.footer.disclaimer}</span>
         </div>
       </div>
     </footer>
