@@ -80,6 +80,8 @@ The AI consultation service is being activated. Please try again shortly.
 // ── Route handler ────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  console.log('[chat] ✅ Using NEW chat API — v3 streaming rewrite')
+
   let body: { messages?: Array<{ role: string; content: string }>; lang?: string }
   try {
     body = await request.json()
@@ -89,6 +91,7 @@ export async function POST(request: NextRequest) {
 
   const { messages = [], lang = 'zh' } = body
   const apiKey = process.env.GEMINI_API_KEY
+  console.log('[chat] API key present:', !!apiKey, '| lang:', lang, '| messages:', messages.length)
 
   // No API key → return rich static fallback (still readable by the streaming reader)
   if (!apiKey) {
@@ -102,7 +105,7 @@ export async function POST(request: NextRequest) {
   try {
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-1.5-flash-latest',
       generationConfig: {
         maxOutputTokens: 600,
         temperature: 0.75,
