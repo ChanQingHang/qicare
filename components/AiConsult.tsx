@@ -162,17 +162,44 @@ export default function AiConsult() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: newMessages, lang }),
         })
-        const data = await res.json()
-        setMessages((prev) => [...prev, { role: 'bot', content: data.reply }])
-      } catch {
-        setMessages((prev) => [
-          ...prev,
+
+        if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`)
+
+        const reader = res.body.getReader()
+        const decoder = new TextDecoder()
+        let accumulated = ''
+        let isFirstChunk = true
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          accumulated += decoder.decode(value, { stream: true })
+
+          // Hide "typing" indicator on first chunk, then stream text into bot bubble
+          if (isFirstChunk) {
+            setChatLoading(false)
+            isFirstChunk = false
+          }
+
+          setMessages([...newMessages, { role: 'bot', content: accumulated }])
+        }
+
+        // Flush any remaining bytes from the decoder
+        const tail = decoder.decode()
+        if (tail) {
+          setMessages([...newMessages, { role: 'bot', content: accumulated + tail }])
+        }
+      } catch (err) {
+        console.error('[chat]', err)
+        setMessages([
+          ...newMessages,
           {
             role: 'bot',
             content:
               lang === 'zh'
-                ? '抱歉，暂时无法连接 AI 服务，请稍后再试。'
-                : 'Sorry, AI service is unavailable. Please try again later.',
+                ? '抱歉，AI 服务暂时不可用，请稍后再试。'
+                : 'Sorry, AI service is temporarily unavailable. Please try again.',
           },
         ])
       } finally {
