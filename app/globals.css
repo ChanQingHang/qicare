@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  /* QiCare Color System */
+  --color-cream: #F4EFE5;
+  --color-cream-2: #EBE3D4;
+  --color-ink: #16302A;
+  --color-ink-2: #1F3A2E;
+  --color-sage: #6E8C6A;
+  --color-sage-l: #A7BF9E;
+  --color-clay: #C2724E;
+  --color-gold: #C8A96A;
+  --color-paper: #FBF8F1;
+  --color-txt: #2c3a32;
+  --color-mut: #7c8579;
+
+  /* Typography */
+  --font-sans: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Fraunces', Georgia, serif;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(22, 48, 42, 0.08);
+  --shadow-card-hover: 0 12px 40px rgba(22, 48, 42, 0.14);
+  --shadow-modal: 0 24px 80px rgba(22, 48, 42, 0.24);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #F4EFE5;
+  color: #2c3a32;
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .serif {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  color: #16302A;
+  letter-spacing: -0.01em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #F4EFE5; }
+::-webkit-scrollbar-thumb { background: #A7BF9E; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #6E8C6A; }
+
+/* Selection */
+::selection { background: #A7BF9E40; color: #16302A; }
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid #6E8C6A;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Smooth image loading */
+img { display: block; max-width: 100%; }
+
+/* Remove default button styles */
+button { font-family: var(--font-sans); }
+
+/* Pulse animation for eyebrow dot */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Float animation for hero card */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* Scan line animation */
+@keyframes scanline {
+  0% { top: 6%; }
+  100% { top: 94%; }
+}
+
+/* Fade in */
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Spin */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-pulse-dot { animation: pulse 2s infinite; }
+.animate-floaty { animation: floaty 5s ease-in-out infinite; }
+.animate-fadein { animation: fadein 0.5s ease forwards; }
+.animate-spin-slow { animation: spin 1s linear infinite; }
