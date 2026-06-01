@@ -1,7 +1,7 @@
 {
-  "name": "岐黄云诊 QiCare",
-  "short_name": "QiCare",
-  "description": "AI 中医健康平台 — 舌象分析 · 名医预约 · 中药商城",
+  "name": "MYTCM 大马中医",
+  "short_name": "MYTCM",
+  "description": "马来西亚 AI 中医健康平台 — 舌象分析 · 名医预约 · 同仁堂中成药",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F4EFE5",

@@ -32,8 +32,35 @@ const SectionReveal = ({ children, delay = 0 }: { children: React.ReactNode; del
   )
 }
 
+// Render structured Markdown: **bold** + newlines
+function BotMessage({ content }: { content: string }) {
+  const lines = content.split('\n')
+  return (
+    <div className="space-y-0.5">
+      {lines.map((line, i) => {
+        if (!line.trim()) return <div key={i} className="h-2" />
+        const parts = line.split(/(\*\*[^*]+\*\*)/)
+        const isHeader = line.startsWith('**') && line.includes('**', 2)
+        return (
+          <p key={i} className={isHeader ? 'font-semibold text-ink mt-2 mb-0.5 text-[13px]' : 'text-[13px]'}>
+            {parts.map((part, j) =>
+              part.startsWith('**') && part.endsWith('**') ? (
+                <strong key={j} className="font-semibold text-ink">
+                  {part.slice(2, -2)}
+                </strong>
+              ) : (
+                <span key={j}>{part}</span>
+              )
+            )}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function AiConsult() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
 
   // Scan state
   const [preview, setPreview] = useState<string | null>(null)
@@ -56,6 +83,8 @@ export default function AiConsult() {
     reader.onload = (ev) => setPreview(ev.target?.result as string)
     reader.readAsDataURL(file)
     setResult(null)
+    // Reset input so the same file can be re-selected
+    e.target.value = ''
   }
 
   const runAnalysis = async () => {
@@ -67,21 +96,27 @@ export default function AiConsult() {
       const res = await fetch('/api/ai-scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ base64, mimeType }),
+        body: JSON.stringify({ base64, mimeType, lang }),
       })
       const data = await res.json()
       setResult(data)
     } catch {
       setResult({
-        tongueColor: '舌淡红',
-        tongueShape: '舌形正常',
-        coating: '苔薄白略腻',
-        constitution: '脾虚湿盛',
-        suggestions: [
-          '健脾祛湿，清淡饮食，少食生冷',
-          '可参考参苓白术散方向',
-          '建议预约中医师做详细辨证',
-        ],
+        tongueColor: lang === 'zh' ? '舌淡红（初步参考）' : 'Pale-red tongue (indicative)',
+        tongueShape: lang === 'zh' ? '舌形基本正常' : 'Generally normal shape',
+        coating: lang === 'zh' ? '苔薄白略腻' : 'Thin white slightly greasy coating',
+        constitution: lang === 'zh' ? '脾虚湿盛（需复诊确认）' : 'Possible Spleen Qi Deficiency with Dampness (confirm with doctor)',
+        suggestions: lang === 'zh'
+          ? [
+              '🌿 以上仅为初步参考，不构成诊断，建议预约医师复诊确认',
+              '🍵 健脾祛湿：清淡饮食，少食生冷油腻，可用薏米赤小豆调理',
+              '📋 推荐方向：参苓白术散，具体用药请咨询持牌中医师',
+            ]
+          : [
+              '🌿 This is a preliminary reference only, not a diagnosis — please consult a doctor',
+              '🍵 Strengthen Spleen: Avoid cold & greasy foods; barley and red bean tea may help',
+              '📋 Suggested direction: Shen Ling Bai Zhu San — confirm with a licensed TCM doctor',
+            ],
       })
     } finally {
       setScanning(false)
@@ -101,22 +136,29 @@ export default function AiConsult() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: newMessages, lang }),
       })
       const data = await res.json()
       setMessages([...newMessages, { role: 'bot', content: data.reply }])
     } catch {
-      setMessages([...newMessages, { role: 'bot', content: '抱歉，暂时无法连接 AI 服务，请稍后再试。' }])
+      setMessages([
+        ...newMessages,
+        {
+          role: 'bot',
+          content: lang === 'zh'
+            ? '抱歉，暂时无法连接 AI 服务，请稍后再试。'
+            : 'Sorry, AI service is unavailable. Please try again later.',
+        },
+      ])
     } finally {
       setChatLoading(false)
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
     }
-  }, [input, messages, chatLoading])
+  }, [input, messages, chatLoading, lang])
 
   return (
     <section id="ai" className="py-24 bg-paper">
       <div className="max-w-[1180px] mx-auto px-7">
-        {/* Header */}
         <SectionReveal>
           <div className="text-center max-w-[600px] mx-auto mb-14">
             <div className="inline-flex items-center gap-2 text-[12px] tracking-widest uppercase text-clay mb-4">
@@ -124,32 +166,26 @@ export default function AiConsult() {
               {t.ai.eyebrow}
             </div>
             <h2 className="font-serif text-[clamp(28px,4vw,44px)] text-ink">{t.ai.title}</h2>
-            <p className="mt-4 text-[16px] text-ink-2/80 font-light">{t.ai.sub}</p>
+            <p className="mt-4 text-[16px] text-ink-2/75 font-light">{t.ai.sub}</p>
           </div>
         </SectionReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Scanner Card */}
           <SectionReveal delay={0.1}>
-            <div className="bg-ink rounded-[28px] p-7 flex flex-col min-h-[480px]">
+            <div className="bg-ink rounded-[28px] p-7 flex flex-col min-h-[500px]">
               <h3 className="font-serif text-[20px] text-cream mb-1">{t.ai.scanTitle}</h3>
-              <p className="text-[13px] text-cream/60 mb-5">{t.ai.scanDesc}</p>
+              <p className="text-[13px] text-cream/55 mb-5">{t.ai.scanDesc}</p>
 
               {/* Upload Area */}
               <div
                 className={`flex-1 rounded-[20px] border-2 border-dashed flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300 relative overflow-hidden ${
-                  scanning
-                    ? 'border-sage-l/80'
-                    : 'border-sage-l/30 hover:border-sage-l/70'
+                  scanning ? 'border-sage-l/80' : 'border-sage-l/30 hover:border-sage-l/60'
                 }`}
                 onClick={() => !preview && fileRef.current?.click()}
               >
-                {/* Scan line animation */}
                 {scanning && (
-                  <div
-                    className="absolute left-[6%] right-[6%] h-[2px] bg-sage-l shadow-[0_0_12px_3px_#A7BF9E] animate-scanline"
-                    style={{ animation: 'scanline 1.6s linear infinite', top: '6%' }}
-                  />
+                  <div className="absolute left-[6%] right-[6%] h-[2px] bg-sage-l shadow-[0_0_12px_3px_#95D5B2] animate-scanline" />
                 )}
 
                 {!preview && !result && (
@@ -161,7 +197,7 @@ export default function AiConsult() {
                         boxShadow: 'inset 0 -8px 16px rgba(0,0,0,0.12)',
                       }}
                     />
-                    <p className="text-[13px] text-cream/70">{t.ai.scanHint}</p>
+                    <p className="text-[13px] text-cream/65">{t.ai.scanHint}</p>
                   </div>
                 )}
 
@@ -178,20 +214,20 @@ export default function AiConsult() {
 
                 {result && (
                   <div className="animate-fadein w-full p-5">
-                    <div className="text-[12px] text-cream/60 mb-2">{t.ai.resultTitle}</div>
+                    <div className="text-[11.5px] text-cream/50 mb-2 italic">{t.ai.resultTitle}</div>
                     <div className="flex flex-wrap gap-2 mb-3">
                       {[result.tongueColor, result.tongueShape, result.coating, result.constitution].map((tag) => (
                         <span
                           key={tag}
-                          className="bg-sage-l/15 text-sage-l border border-sage-l/30 text-[12px] px-3 py-1 rounded-full"
+                          className="bg-sage-l/12 text-sage-l border border-sage-l/25 text-[11.5px] px-3 py-1 rounded-full leading-snug"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
                     {result.suggestions.map((s, i) => (
-                      <div key={i} className="flex gap-2 text-[13.5px] text-cream/85 my-1.5">
-                        <span className="text-sage-l flex-shrink-0">▸</span>
+                      <div key={i} className="flex gap-2 text-[13px] text-cream/80 my-1.5 leading-relaxed">
+                        <span className="text-sage-l flex-shrink-0 mt-0.5">▸</span>
                         {s}
                       </div>
                     ))}
@@ -212,13 +248,13 @@ export default function AiConsult() {
                     onClick={() => fileRef.current?.click()}
                     className="flex-1 bg-white/10 text-cream text-[13px] rounded-full py-2.5 hover:bg-white/15 transition-colors border border-white/10"
                   >
-                    {preview ? t.ai.retake : t.ai.scanHint.replace('📷 ', '')}
+                    {preview ? t.ai.retake : (lang === 'zh' ? '上传照片' : 'Upload Photo')}
                   </button>
                 )}
                 {preview && !result && !scanning && (
                   <button
                     onClick={runAnalysis}
-                    className="flex-1 bg-sage text-cream text-[13px] rounded-full py-2.5 hover:bg-sage/90 transition-colors"
+                    className="flex-1 bg-sage text-white text-[13px] rounded-full py-2.5 hover:bg-sage/90 transition-colors"
                   >
                     {t.ai.scanBtn}
                   </button>
@@ -252,21 +288,21 @@ export default function AiConsult() {
 
           {/* Chat Card */}
           <SectionReveal delay={0.2}>
-            <div className="bg-cream rounded-[28px] p-7 flex flex-col min-h-[480px] border border-cream-2">
+            <div className="bg-cream rounded-[28px] p-7 flex flex-col min-h-[500px] border border-cream-2">
               <h3 className="font-serif text-[19px] text-ink mb-4">{t.ai.chatTitle}</h3>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1 max-h-[320px]">
+              <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1 max-h-[340px]">
                 {messages.map((m, i) => (
                   <div
                     key={i}
-                    className={`max-w-[82%] px-4 py-2.5 rounded-2xl text-[13.5px] leading-relaxed font-light animate-fadein ${
+                    className={`max-w-[85%] px-4 py-3 rounded-2xl leading-relaxed font-light animate-fadein ${
                       m.role === 'bot'
                         ? 'bg-white border border-cream-2 self-start rounded-bl-sm text-ink-2'
-                        : 'bg-ink-2 text-cream self-end rounded-br-sm'
+                        : 'bg-ink-2 text-cream self-end rounded-br-sm text-[13.5px]'
                     }`}
                   >
-                    {m.content}
+                    {m.role === 'bot' ? <BotMessage content={m.content} /> : m.content}
                   </div>
                 ))}
                 {chatLoading && (
@@ -283,8 +319,15 @@ export default function AiConsult() {
                 <div ref={chatEndRef} />
               </div>
 
+              {/* Disclaimer */}
+              <p className="text-[11px] text-mut/70 mt-3 leading-relaxed">
+                {lang === 'zh'
+                  ? '⚠️ AI 建议仅供健康参考，不构成医疗诊断。如有严重症状请就医。'
+                  : '⚠️ AI guidance is for wellness reference only, not medical diagnosis.'}
+              </p>
+
               {/* Input */}
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-2 mt-3">
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -295,9 +338,9 @@ export default function AiConsult() {
                 <button
                   onClick={sendMessage}
                   disabled={!input.trim() || chatLoading}
-                  className="w-10 h-10 rounded-full bg-ink-2 text-cream flex items-center justify-center hover:bg-ink transition-colors disabled:opacity-40 flex-shrink-0"
+                  className="w-10 h-10 rounded-full bg-ink-2 text-white flex items-center justify-center hover:bg-ink transition-colors disabled:opacity-40 flex-shrink-0"
                 >
-                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <line x1="22" y1="2" x2="11" y2="13" />
                     <polygon points="22 2 15 22 11 13 2 9 22 2" />
                   </svg>
@@ -307,16 +350,6 @@ export default function AiConsult() {
           </SectionReveal>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes scanline {
-          0% { top: 6%; }
-          100% { top: 94%; }
-        }
-        .animate-scanline {
-          animation: scanline 1.6s linear infinite;
-        }
-      `}</style>
     </section>
   )
 }
